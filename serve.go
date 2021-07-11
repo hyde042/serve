@@ -79,6 +79,9 @@ func Reader(rw http.ResponseWriter, req *http.Request, r io.Reader, opts ...Opti
 	for _, opt := range opts {
 		opt(&c)
 	}
+
+	// TODO: support content-type detection?
+
 	if c.mime != "" {
 		rw.Header().Set(MimeHeader, c.mime)
 	}
