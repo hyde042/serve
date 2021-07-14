@@ -70,29 +70,44 @@ func JSON(w http.ResponseWriter, r *http.Request, v interface{}, opts ...Option)
 	if err != nil {
 		return 0, err
 	}
-	return Reader(w, r, bytes.NewReader(data), append([]Option{SizeOf(data), JSONMime}, opts...)...)
+	return Reader(w, r, bytes.NewReader(data), append([]Option{
+		SizeOf(data),
+		JSONMime,
+	}, opts...)...)
 }
 
-func File(w http.ResponseWriter, r *http.Request, fsys fs.FS, name string, opts ...Option) (int64, error) {
+func FSFile(w http.ResponseWriter, r *http.Request,
+	fsys fs.FS, name string, opts ...Option) (int64, error) {
+
 	f, err := fsys.Open(name)
 	if err != nil {
 		return 0, err
 	}
+	return File(w, r, f, opts...)
+}
+
+func File(w http.ResponseWriter, r *http.Request,
+	f fs.File, opts ...Option) (int64, error) {
+
 	info, err := f.Stat()
 	if err != nil {
 		return 0, err
 	}
 	return Reader(w, r, f, append([]Option{
 		Size(info.Size()),
-		Mime(mime.TypeByExtension(path.Ext(name))),
+		Mime(mime.TypeByExtension(path.Ext(info.Name()))),
 	}, opts...)...)
 }
 
-func Bytes(w http.ResponseWriter, r *http.Request, data []byte, opts ...Option) (int64, error) {
+func Bytes(w http.ResponseWriter, r *http.Request,
+	data []byte, opts ...Option) (int64, error) {
+
 	return Reader(w, r, bytes.NewReader(data), append(opts, SizeOf(data))...)
 }
 
-func Reader(rw http.ResponseWriter, req *http.Request, r io.Reader, opts ...Option) (int64, error) {
+func Reader(rw http.ResponseWriter, req *http.Request,
+	r io.Reader, opts ...Option) (int64, error) {
+
 	var c config
 	for _, opt := range opts {
 		opt(&c)
