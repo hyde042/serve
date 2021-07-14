@@ -9,6 +9,9 @@ import (
 
 func App(fsys fs.FS, indexFile string, opts ...Option) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+		// TODO: configurable handle logging
+
 		Handle(w, r, func() (int64, error) {
 			if r.Method != http.MethodGet {
 				return 0, ErrMethodNotAllowed
