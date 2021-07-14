@@ -5,6 +5,7 @@ import (
 	"io/fs"
 	"net/http"
 	"os"
+	"strings"
 )
 
 func App(fsys fs.FS, indexFile string, opts ...Option) http.Handler {
@@ -16,7 +17,11 @@ func App(fsys fs.FS, indexFile string, opts ...Option) http.Handler {
 			if r.Method != http.MethodGet {
 				return 0, ErrMethodNotAllowed
 			}
-			if f, err := fsys.Open(r.URL.Path); err != nil {
+			name := strings.Trim(r.URL.Path, "/")
+			if name == "" {
+				name = "."
+			}
+			if f, err := fsys.Open(name); err != nil {
 				if !os.IsNotExist(errors.Unwrap(err)) {
 					return 0, err
 				}
