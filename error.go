@@ -6,6 +6,8 @@ import (
 	"net/http"
 )
 
+var ErrMethodNotAllowed = errors.New("method not allowed")
+
 func Error(w http.ResponseWriter, err error) {
 	if err == nil {
 		return
@@ -23,6 +25,8 @@ func statusCode(err error) int {
 		return http.StatusForbidden
 	case errors.Is(err, fs.ErrInvalid):
 		return http.StatusBadRequest
+	case errors.Is(err, ErrMethodNotAllowed):
+		return http.StatusMethodNotAllowed
 	default:
 		return http.StatusInternalServerError
 	}
