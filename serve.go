@@ -118,6 +118,7 @@ func Reader(rw http.ResponseWriter, req *http.Request, r io.Reader, opts ...Opti
 	}
 
 	// TODO: support range requests with io.Seeker
+	// TODO: improve range request spec compilance / deal with misbehaving clients
 
 	if rat, ok := r.(io.ReaderAt); ok {
 		rw.Header().Set("Accept-Ranges", "bytes")
