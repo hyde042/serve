@@ -6,7 +6,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"io/fs"
+	"mime"
 	"net/http"
+	"path"
 	"regexp"
 	"strconv"
 	"strings"
@@ -68,6 +71,21 @@ func JSON(w http.ResponseWriter, r *http.Request, v interface{}, opts ...Option)
 		return 0, err
 	}
 	return Reader(w, r, bytes.NewReader(data), append([]Option{SizeOf(data), JSONMime}, opts...)...)
+}
+
+func File(w http.ResponseWriter, r *http.Request, fsys fs.FS, name string, opts ...Option) (int64, error) {
+	f, err := fsys.Open(name)
+	if err != nil {
+		return 0, err
+	}
+	info, err := f.Stat()
+	if err != nil {
+		return 0, err
+	}
+	return Reader(w, r, f, append([]Option{
+		Size(info.Size()),
+		Mime(mime.TypeByExtension(path.Ext(name))),
+	}, opts...)...)
 }
 
 func Bytes(w http.ResponseWriter, r *http.Request, data []byte, opts ...Option) (int64, error) {
