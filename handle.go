@@ -10,6 +10,7 @@ func Handle(w http.ResponseWriter, r *http.Request, fn func() (int64, error)) {
 	startTime := time.Now()
 
 	// TODO: improve size logging (both incoming and outgoing)
+	// TODO: truncate massive URLs for logging
 
 	n, err := fn()
 	if n == 0 && err != nil {
